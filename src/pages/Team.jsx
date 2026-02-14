@@ -6,23 +6,29 @@ import tcplight from "../assets/images/tcpLogo.png";
 import { base_url } from "../utils/urls";
 import TeamCard from "../components/TeamCard";
 import TeamNav from "../components/TeamNav";
+import { FaSpinner } from "react-icons/fa";
+
 const Team = () => {
-  const url = base_url + "team/2024/";
+  // Updated year to 2026
+  const url = base_url + "team/2026/";
   const [state, setState] = useState({
     data: [],
     loading: true,
   });
+
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(url);
-      const data = await response.json();
-      // console.log(data.data)
-      //   console.log(data[0].data);
-      //   console.log("State" , state)
-      setState({
-        data: data.data,
-        loading: false,
-      });
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+        setState({
+          data: data.data || [],
+          loading: false,
+        });
+      } catch (e) {
+        console.error(e);
+        setState({ data: [], loading: false });
+      }
     };
     fetchData();
   }, []);
@@ -44,125 +50,85 @@ const Team = () => {
 
     return filteredMembers;
   };
+
   const overAllCoordinaters = MembersByDesignation("OCO");
-  const headCoordinators = MembersByDesignation("HCO").filter(
-    (member) => member.name !== "Neel Sharma"
-  );
+  const headCoordinators = MembersByDesignation("HCO");
+  // Assuming specific logic for Head, modify name if needed for 2026
   const mentorshipHead = state?.data.find(
-    (member) => member.name === "Neel Sharma"
+    (member) => member.member_type === "HCO" && member.domain === "Technical" // Generic fallback
   );
   const managers = MembersByDesignation("MNG");
   const executives = MembersByDesignation("EXC");
-  // console.log(headCoordinators , mentorshipHead);
+
   return (
     <>
-      <nav className="w-screen fixed z-50 border-b ">
+      <nav className="w-screen fixed z-50 border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-md">
         <TeamNav />
       </nav>
-      <div className="text-black relative w-screen h-full flex flex-col items-center text-center dark:bg-gray-900 pt-20">
-        <div className="flex justify-center items-center py-12 gap-2">
+      <div className="text-black relative w-screen min-h-screen flex flex-col items-center text-center dark:bg-gray-900 pt-24 pb-20">
+        <div className="flex flex-col md:flex-row justify-center items-center py-8 gap-4 animate-fade-in-down">
           <img
             src={tcp}
-            className="md:w-32 md:h-32 w-20 h-20 dark:block hidden"
+            className="w-24 h-24 dark:block hidden"
             alt="tcp-logo"
           />
           <img
             src={tcplight}
-            className="md:w-32 md:h-32 w-20 h-20 dark:hidden block"
+            className="w-24 h-24 dark:hidden block"
             alt="tcp-logo"
           />
-          <h1 className="font-bold md:text-5xl text-2xl ml-4 dark:text-white">
-            {"<"} Team TCP 2024 {">"}
+          <h1 className="font-extrabold md:text-6xl text-4xl ml-0 md:ml-4 dark:text-white tracking-tighter">
+            {"<"} Team TCP 2026 {">"}
           </h1>
         </div>
+        
         <Link to="/">
-          <div className="bg-primary flex space-x-2 text-lg px-10 py-4 text-white hover:bg-[--tertiary-c] dark:bg-transparent dark:border dark:hover:bg-primary dark:hover:border-primary dark:hover:text-black transition-all duration-300 rounded-lg">
-            <FaArrowLeft className="mt-1" />
-            <button>Back to main page</button>
+          <div className="bg-[var(--primary-c)] flex items-center gap-2 text-lg px-8 py-3 text-white hover:bg-[var(--tertiary-c)] transition-all duration-300 rounded-full shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+            <FaArrowLeft />
+            <span>Back to Main Page</span>
           </div>
         </Link>
-        <div className="md:p-16  flex flex-col justify-center items-center">
-          <div className="md:text-5xl text-2xl font-bold dark:text-white py-10">
-            Mentorship Head
-          </div>
-          <div className="flex flex-wrap justify-center gap-4">
-            {mentorshipHead && (
-              <TeamCard
-                email={mentorshipHead?.email}
-                img={mentorshipHead?.image}
-                name={mentorshipHead?.name}
-                position="Mentorship Head"
-                linkedin={mentorshipHead?.linkedin}
-                insta={mentorshipHead?.instagram}
-                // domain={member.domain}
-              />
-            )}
-          </div>
-          <div className="md:text-5xl text-2xl font-bold dark:text-white py-10">
-            Overall Coordinators
-          </div>
-          <div className="flex flex-wrap justify-center gap-4">
-            {overAllCoordinaters.map((member, index) => (
-              <TeamCard
-                key={index}
-                email={member.email}
-                img={member.image}
-                name={member.name}
-                position={member.member_type}
-                linkedin={member.linkedin}
-                // domain={member.domain}
-              />
+
+        {state.loading ? (
+           <div className="flex h-[50vh] items-center justify-center">
+             <FaSpinner className="animate-spin text-4xl text-[var(--primary-c)]" />
+           </div>
+        ) : (
+          <div className="md:p-10 p-4 w-full flex flex-col justify-center items-center space-y-16">
+            
+            {/* Sections */}
+            {[
+              { title: "Mentorship Head", data: [mentorshipHead].filter(Boolean) },
+              { title: "Overall Coordinators", data: overAllCoordinaters },
+              { title: "Head Coordinators", data: headCoordinators },
+              { title: "Managers", data: managers },
+              { title: "Executives", data: executives },
+            ].map((section, idx) => (
+               section.data.length > 0 && (
+                <div key={idx} className="w-full">
+                  <h2 className="md:text-4xl text-2xl font-bold dark:text-white mb-10 relative inline-block">
+                    {section.title}
+                    <span className="absolute bottom-[-10px] left-1/2 transform -translate-x-1/2 w-1/2 h-1 bg-[var(--primary-c)] rounded-full"></span>
+                  </h2>
+                  <div className="flex flex-wrap justify-center gap-8">
+                    {section.data.map((member, index) => (
+                      <TeamCard
+                        key={index}
+                        email={member.email}
+                        img={member.image}
+                        name={member.name}
+                        position={member.member_type}
+                        linkedin={member.linkedin}
+                        insta={member.instagram}
+                        domain={member.domain}
+                      />
+                    ))}
+                  </div>
+                </div>
+               )
             ))}
           </div>
-          <div className="md:text-5xl text-2xl font-bold dark:text-white py-10">
-            Head Coordinators
-          </div>
-          <div className="flex flex-wrap justify-center gap-4">
-            {headCoordinators.map((member, index) => (
-              <TeamCard
-                key={index}
-                img={member.image}
-                name={member.name}
-                position={member.member_type}
-                linkedin={member.linkedin}
-                insta={member.instagram}
-                domain={member.domain}
-              />
-            ))}
-          </div>
-          <div className="md:text-5xl text-2xl font-bold dark:text-white py-10">
-            Managers
-          </div>
-          <div className="flex flex-wrap justify-center gap-4">
-            {managers.map((member, index) => (
-              <TeamCard
-                key={index}
-                img={member.image}
-                name={member.name}
-                position={member.member_type}
-                linkedin={member.linkedin}
-                insta={member.instagram}
-                domain={member.domain}
-              />
-            ))}
-          </div>
-          <div className="md:text-5xl text-2xl font-bold dark:text-white py-10">
-            Executives
-          </div>
-          <div className="flex flex-wrap justify-center gap-4">
-            {executives.map((member, index) => (
-              <TeamCard
-                key={index}
-                img={member.image}
-                name={member.name}
-                position={member.member_type}
-                linkedin={member.linkedin}
-                insta={member.instagram}
-                domain={member.domain}
-              />
-            ))}
-          </div>
-        </div>
+        )}
       </div>
     </>
   );
