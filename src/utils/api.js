@@ -47,7 +47,6 @@ const getCookie = (name) => {
 };
 
 export const fetchDataFromApiWithResponse = async (bodyData, api_endpoint) => {
-  // console.log(JSON.stringify(bodyData));
   const csrfToken = getCookie('csrftoken');
   const accessToken = localStorage.getItem("access_token");
   
