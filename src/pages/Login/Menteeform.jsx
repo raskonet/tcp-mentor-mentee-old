@@ -7,14 +7,15 @@ import { FaSpinner } from "react-icons/fa";
 
 const Menteeform = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const[mentee,setMentee]=useState(JSON.parse(localStorage.getItem("Mentee")) || null);
+  const [mentee, setMentee] = useState(JSON.parse(localStorage.getItem("Mentee")) || null);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [isLoading,setIsloading]=useState(false)
+  const [isLoading, setIsloading] = useState(false);
   const navigate = useNavigate();
   const [form, setForm] = useState({
     userid: "",
     password: "",
   });
+
   useEffect(() => {
     if (loggedIn && mentee) {
       setTimeout(() => {
@@ -25,6 +26,7 @@ const Menteeform = () => {
       setLoggedIn(true);
     }
   }, [loggedIn, navigate, mentee]);
+
   const fetchData = async () => {
     const body = { email: form.userid, password: form.password };
     setIsloading(true);
@@ -42,13 +44,19 @@ const Menteeform = () => {
           theme: "dark",
         });
         localStorage.setItem("Mentee", JSON.stringify(data.user_data));
-        setMentee(data.user_data)
+        
+        // --- Added: Store JWT Tokens ---
+        if (data.access_token) {
+          localStorage.setItem("access_token", data.access_token);
+        }
+        if (data.refresh_token) {
+          localStorage.setItem("refresh_token", data.refresh_token);
+        }
+        // -------------------------------
+
+        setMentee(data.user_data);
         setLoggedIn(true);
-        // setTimeout(() => {
-        //   navigate("/mentee/"+mentee?.name);
-        // }, 2000);
-      }
-      else{
+      } else {
         toast.error(data.status_message, {
           position: "bottom-right",
           autoClose: 3000,
@@ -61,28 +69,25 @@ const Menteeform = () => {
         });
       }
     } catch (error) {
-        toast.error("Something went wrong",{
-          position: "bottom-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-        });
-    }finally{
+      toast.error("Something went wrong", {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    } finally {
       setIsloading(false);
     }
-    
-  
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     fetchData();
   };
-
 
   const checkLoggedIn = () => {
     const mentorData = localStorage.getItem("Mentee");
@@ -171,13 +176,13 @@ const Menteeform = () => {
           )}
         </div>
         <button className="bg-[var(--primary-c)] rounded-md text-white py-2 mt-8 hover:bg-[var(--tertiary-c)] duration-300">
-         {isLoading ?
-          <div className="flex items-center justify-center text-black  dark:text-gray-400">
-                  <FaSpinner className="animate-spin text-4xl mr-2" />
-                </div>
-            
-          : 
-          "Login"}
+          {isLoading ? (
+            <div className="flex items-center justify-center text-black  dark:text-gray-400">
+              <FaSpinner className="animate-spin text-4xl mr-2" />
+            </div>
+          ) : (
+            "Login"
+          )}
         </button>
       </form>
     </>
