@@ -1,5 +1,15 @@
 import { base_url } from "./urls";
 
+// Helper to handle 401s
+const handleAuthError = (res) => {
+  if (res.status === 401 || res.status === 403) {
+    localStorage.clear(); // Clear all data
+    window.location.href = '/login'; // Force redirect
+    return true;
+  }
+  return false;
+};
+
 export const fetchDataFromApi = async (api_endpoint, api_parameter) => {
   const accessToken = localStorage.getItem("access_token");
   const options = {
@@ -17,6 +27,8 @@ export const fetchDataFromApi = async (api_endpoint, api_parameter) => {
     options
   );
 
+  if (handleAuthError(res)) return { status_code: 401 }; // Stop processing
+
   const data = await res.json();
   return data;
 };
@@ -33,6 +45,9 @@ export const fetchDataWithEndPoint = async (api_endpoint) => {
   }
 
   const res = await fetch(`${base_url}${api_endpoint}/`, options);
+  
+  if (handleAuthError(res)) return { status_code: 401 };
+
   const data = await res.json();
   return data;
 };
@@ -70,6 +85,9 @@ export const fetchDataFromApiWithResponse = async (bodyData, api_endpoint) => {
   };
   
   const res = await fetch(`${base_url}${api_endpoint}`, options);
+
+  if (handleAuthError(res)) return { status_code: 401 };
+
   const data = await res.json();
   return data;
 };
