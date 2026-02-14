@@ -10,10 +10,9 @@ import { FaSpinner, FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
 const MenteeCodingProfiles = ({ mentor, mentee, onMenteeUpdate, onMentorUpdate }) => {
   const [menteeData, setMenteeData] = useState();
   const [showModal, setShowModal] = useState(false);
-  const [loading, setLoading] = useState(true); // Start loading true
+  const [loading, setLoading] = useState(true);
   const [teamData, setTeamData] = useState(null);
   
-  // States for editing team name
   const [isEditing, setIsEditing] = useState(false);
   const [newTeamName, setNewTeamName] = useState("");
   const [isUpdatingName, setIsUpdatingName] = useState(false);
@@ -23,9 +22,9 @@ const MenteeCodingProfiles = ({ mentor, mentee, onMenteeUpdate, onMentorUpdate }
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Determine the ID to fetch: Mentor's ID or Mentee's Mentor ID
       const targetId = mentor ? mentor.id : mentee?.mentor_id;
       
+      // If no ID is available, stop loading and return
       if (!targetId) {
         setLoading(false);
         return;
@@ -36,32 +35,40 @@ const MenteeCodingProfiles = ({ mentor, mentee, onMenteeUpdate, onMentorUpdate }
       if (data.status_code == 200) {
         setTeamData(data.team_data);
         
-        // Initialize newTeamName with current name for editing
         if (data.team_data && data.team_data.length > 0) {
           setNewTeamName(data.team_data[0].team_name);
         }
 
-        // Logic to update local storage state if it's out of sync with API
         const fetchedTeamData = data.team_data;
+        const fetchedTeam = fetchedTeamData && fetchedTeamData.length > 0 ? fetchedTeamData[0] : null;
+
+        // Fix Buffering: Only update if local storage/prop is actually different/missing
         
-        // Update Mentee State if needed
-        if (mentee && (!mentee.Menteeteam || mentee.Menteeteam.length == 0) && fetchedTeamData) {
-          const updatedMentee = {
-            ...mentee,
-            Menteeteam: fetchedTeamData
-          }
-          if (onMenteeUpdate) onMenteeUpdate(updatedMentee);
+        // 1. Mentee Update Logic
+        if (mentee && fetchedTeam) {
+            // Check if Menteeteam is missing or empty array, but API returned a team
+            const currentTeamCount = Array.isArray(mentee.Menteeteam) ? mentee.Menteeteam.length : (mentee.Menteeteam ? 1 : 0);
+            
+            if (currentTeamCount === 0) {
+                 const updatedMentee = {
+                    ...mentee,
+                    Menteeteam: fetchedTeamData 
+                  }
+                  if(onMenteeUpdate) onMenteeUpdate(updatedMentee);
+            }
         }
 
-        // Update Mentor State if needed
-        if (mentor && (!mentor.Mentorteam) && fetchedTeamData && fetchedTeamData.length > 0) {
-           const updatedMentor = {
-            ...mentor,
-            Mentorteam: fetchedTeamData[0]
+        // 2. Mentor Update Logic
+        if (mentor && fetchedTeam) {
+          // Check if Mentor.Mentorteam is missing, but API returned a team
+          if (!mentor.Mentorteam) {
+             const updatedMentor = {
+                ...mentor,
+                Mentorteam: fetchedTeam
+              }
+             if(onMentorUpdate) onMentorUpdate(updatedMentor);
           }
-          if (onMentorUpdate) onMentorUpdate(updatedMentor);
         }
-
       } else {
         setTeamData(null);
       }
@@ -74,11 +81,9 @@ const MenteeCodingProfiles = ({ mentor, mentee, onMenteeUpdate, onMentorUpdate }
     }
   };
 
-  // FIX: Added 'mentor' to dependency array. 
-  // This ensures fetch runs when mentor prop loads.
   useEffect(() => {
     fetchData();
-  }, [mentee, mentor]);
+  }, []); // Remove dependencies to prevent infinite loop on update
 
   const handleClick = (member) => {
     setMenteeData(member);
@@ -107,7 +112,7 @@ const MenteeCodingProfiles = ({ mentor, mentee, onMenteeUpdate, onMentorUpdate }
       if (data.status_code === 200) {
         toast.success("Team Name Updated!");
         setIsEditing(false);
-        fetchData(); // Refresh list to ensure consistency
+        fetchData(); 
       } else {
         toast.error(data.status_message || "Failed to update team name");
       }
@@ -132,11 +137,10 @@ const MenteeCodingProfiles = ({ mentor, mentee, onMenteeUpdate, onMentorUpdate }
       toast.success("Team Created Successfully", {
         theme: "dark",
       });
-      // Force immediate refresh
-      fetchData(); 
+      fetchData();
     }
     else {
-      toast.error("Some Error Occured ! Please try again.", {
+      toast.error(data.status_message || "Some Error Occured!", {
         theme: "dark",
       });
     }
@@ -154,11 +158,12 @@ const MenteeCodingProfiles = ({ mentor, mentee, onMenteeUpdate, onMentorUpdate }
           Loading...
       </div>
       :
-      teamData && teamData?.length>0 ? (
+      teamData && teamData?.length > 0 ? (
         <>
           <div className="dark:bg-gray-800  overflow-y-auto h-[34.5vh] rounded-lg dark:border-none border">
-             {/* Header with Edit Functionality */}
-             <div className="bg-primary text-white p-2 py-3 flex justify-center items-center gap-2 sticky top-0 z-10">
+              
+              {/* Header with Edit Functionality */}
+              <div className="bg-primary text-white p-2 py-3 flex justify-center items-center gap-2 sticky top-0 z-10">
                 {isEditing && mentor ? (
                   <div className="flex items-center gap-2 w-full justify-center">
                     <input 
@@ -180,7 +185,10 @@ const MenteeCodingProfiles = ({ mentor, mentee, onMenteeUpdate, onMentorUpdate }
                           className="cursor-pointer hover:text-red-300" 
                           onClick={() => {
                             setIsEditing(false);
-                            setNewTeamName(teamData[0].team_name); 
+                            // Reset to original name if cancelled
+                            if(teamData && teamData.length > 0) {
+                                setNewTeamName(teamData[0].team_name);
+                            }
                           }} 
                           title="Cancel"
                         />
@@ -190,7 +198,7 @@ const MenteeCodingProfiles = ({ mentor, mentee, onMenteeUpdate, onMentorUpdate }
                 ) : (
                   <div className="flex items-center gap-3">
                     <h2 className="md:text-2xl text-lg font-semibold text-center">
-                      {teamData[0].team_name}
+                      {teamData[0]?.team_name}
                     </h2>
                     {mentor && (
                       <FaEdit 
