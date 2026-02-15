@@ -15,10 +15,11 @@ const MentorDefaultDash = ({ onMentorUpdate }) => {
   const Level = mentor?.Qlevel_count || {};
   const Topic = mentor?.topic_count || {};
 
-  /* ---------- Clean Solid Stat Card ---------- */
-  const StatCard = ({ title, value, icon: Icon, bg, border }) => (
+  /* ---------- Clean Solid Stat Card (No Strip) ---------- */
+  const StatCard = ({ title, value, icon: Icon, bg }) => (
     <div
-      className={`rounded-xl p-6 ${bg} border-b-4 ${border}
+      className={`rounded-xl p-6 ${bg}
+                  border border-gray-200 dark:border-gray-700
                   shadow-sm hover:shadow-md
                   transition-all duration-300`}
     >
@@ -36,7 +37,6 @@ const MentorDefaultDash = ({ onMentorUpdate }) => {
     </div>
   );
 
-  /* ---------- Difficulty Card ---------- */
   const DifficultyCard = ({ level, count, color, bgColor, textColor }) => (
     <div
       className={`relative overflow-hidden rounded-xl ${bgColor} p-5
@@ -65,13 +65,11 @@ const MentorDefaultDash = ({ onMentorUpdate }) => {
     </div>
   );
 
-  /* ---------- Topic Badge ---------- */
   const TopicBadge = ({ topic, count }) => (
     <div
       className="inline-flex items-center gap-2 px-4 py-2
                  bg-gray-100 dark:bg-gray-700
-                 rounded-full border border-gray-200 dark:border-gray-600
-                 transition-all duration-300"
+                 rounded-full border border-gray-200 dark:border-gray-600"
     >
       <FaFire className="text-orange-500" size={14} />
       <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -100,7 +98,6 @@ const MentorDefaultDash = ({ onMentorUpdate }) => {
             value={mentor?.total_q || 0}
             icon={FaTasks}
             bg="bg-red-100 dark:bg-red-900/30"
-            border="border-red-500"
           />
 
           <StatCard
@@ -108,7 +105,6 @@ const MentorDefaultDash = ({ onMentorUpdate }) => {
             value={mentor?.score || 0}
             icon={FaStar}
             bg="bg-green-100 dark:bg-green-900/30"
-            border="border-green-500"
           />
 
           <StatCard
@@ -116,7 +112,6 @@ const MentorDefaultDash = ({ onMentorUpdate }) => {
             value={mentor?.Mentorteam?.team_rank || "--"}
             icon={FaTrophy}
             bg="bg-blue-100 dark:bg-blue-900/30"
-            border="border-blue-500"
           />
 
           <StatCard
@@ -124,7 +119,6 @@ const MentorDefaultDash = ({ onMentorUpdate }) => {
             value={mentor?.Mentorteam?.team_members?.length || 0}
             icon={FaUsers}
             bg="bg-purple-100 dark:bg-purple-900/30"
-            border="border-purple-500"
           />
         </div>
       </section>
