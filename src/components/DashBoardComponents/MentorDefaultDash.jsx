@@ -25,8 +25,11 @@ const MentorDefaultDash = ({ onMentorUpdate }) => {
   );
 
   const DifficultyCard = ({ level, count, color, bgColor, textColor }) => (
-    <div className={`relative overflow-hidden rounded-xl ${bgColor} p-5 border-l-4 ${color} hover:shadow-lg transition-all duration-300 hover:scale-105`}>
+    <div className={`relative overflow-hidden rounded-xl ${bgColor} p-5 hover:shadow-lg transition-all duration-300 hover:scale-105`}>
       <div className="flex flex-col items-center justify-center space-y-2">
+        <div className={`w-16 h-16 rounded-full ${color.replace('border', 'bg')}/10 flex items-center justify-center`}>
+          <span className={`text-3xl font-bold ${textColor}`}>{count || 0}</span>
+        </div>
         <span className={`text-sm font-bold ${textColor} uppercase tracking-wide`}>{level}</span>
       </div>
       <div className="absolute top-2 right-2">
