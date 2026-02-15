@@ -27,9 +27,6 @@ const MentorDefaultDash = ({ onMentorUpdate }) => {
   const DifficultyCard = ({ level, count, color, bgColor, textColor }) => (
     <div className={`relative overflow-hidden rounded-xl ${bgColor} p-5 border-l-4 ${color} hover:shadow-lg transition-all duration-300 hover:scale-105`}>
       <div className="flex flex-col items-center justify-center space-y-2">
-        <div className={`w-16 h-16 rounded-full ${color.replace('border', 'bg')}/10 flex items-center justify-center`}>
-          <span className={`text-3xl font-bold ${textColor}`}>{count || 0}</span>
-        </div>
         <span className={`text-sm font-bold ${textColor} uppercase tracking-wide`}>{level}</span>
       </div>
       <div className="absolute top-2 right-2">
@@ -52,26 +49,8 @@ const MentorDefaultDash = ({ onMentorUpdate }) => {
 
   return (
     <div className="space-y-8 px-2">
-      {/* Welcome Header with Enhanced Design */}
-      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-3">
-            <FaChartLine className="text-white" size={32} />
-            <h1 className="text-4xl font-extrabold text-white">Dashboard Overview</h1>
-          </div>
-          <p className="text-white/90 text-lg">Monitor your mentorship progress and team performance</p>
-        </div>
-      </div>
 
-      {/* Overview Section with Enhanced Stats */}
       <section>
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-1 h-8 bg-gradient-to-b from-blue-600 to-purple-600 rounded-full"></div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Key Metrics</h2>
-        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard 
             title="Questions Assigned" 
@@ -105,7 +84,6 @@ const MentorDefaultDash = ({ onMentorUpdate }) => {
       </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Mentees List with Enhanced Container */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-1">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-t-xl">
